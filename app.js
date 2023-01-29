@@ -8,6 +8,11 @@ var tfnode = require("@tensorflow/tfjs-node");
 
 var app = express();
 
+//Object detection functions
+var load_model = require('./tools/load_model')
+var detection = require('./tools/object_detection')
+
+//Routes
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 // // var flowersRouter = require('./routes/flowers');
@@ -55,20 +60,7 @@ let inputShape = [1, 0, 0, 3];
 //     res.render('error');
 // });
 
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
 
-
-const loadModel = async() => {
-    // yolov_5model = await tf.loadGraphModel(path.join(__dirname, 'public/model-strw-nano/model.json'));
-    yolov_5model = await tf.loadGraphModel('https://raw.githubusercontent.com/DavidSilTroy/node_yolov5_to_tfjs/main/public/model-strw-nano/model.json');
-    // console.log(yolov_5model);
-    console.log('yolov_5model cargao');
-    return yolov_5model;
-};
 
 
 
@@ -77,7 +69,7 @@ app.post('/image', async(req, res, next) => {
     let classThreshold = 0.5;
     try {
 
-        yolov5 = await loadModel();
+        yolov5 = await load_model();
         // warming up model
         const dummyInput = tf.ones(yolov5.inputs[0].shape);
         const warmupResult = await yolov5.executeAsync(dummyInput);
@@ -104,7 +96,7 @@ app.post('/image', async(req, res, next) => {
 
 
         console.log(yolov5.inputs[0].shape);
-        let flowers = await detectImage(imgBinary, yolov5, classThreshold);
+        let flowers = await detection(imgBinary, yolov5, classThreshold);
 
 
         return res.send(`Deteted: ${flowers} flowers`);
@@ -114,67 +106,6 @@ app.post('/image', async(req, res, next) => {
         next(e);
     }
 });
-
-
-//For detecting
-
-const preprocess = (source, modelWidth, modelHeight) => {
-    let xRatio, yRatio;
-    const input = tf.tidy(() => {
-        // const img = tf.browser.fromPixels(source);
-
-        const img = tfnode.node.decodeImage(source);
-        const [h, w] = img.shape.slice(0, 2);
-        const maxSize = Math.max(w, h);
-        const imgPadded = img.pad([
-            [0, maxSize - h],
-            [0, maxSize - w],
-            [0, 0],
-        ]);
-        xRatio = maxSize / w;
-        yRatio = maxSize / h;
-        return tf.image
-            .resizeBilinear(imgPadded, [modelWidth, modelHeight])
-            .div(255.0)
-            .expandDims(0);
-    });
-    return [input, xRatio, yRatio];
-};
-
-const detectImage = async(imgSource, model, classThreshold) => {
-    const [modelWidth, modelHeight] = model.inputs[0].shape.slice(1, 3);
-
-    tf.engine().startScope();
-    const [input, xRatio, yRatio] = preprocess(imgSource, modelWidth, modelHeight);
-
-    let objects_detected = 0;
-
-    await model.executeAsync(input).then((res) => {
-        const [boxes, scores, classes] = res.slice(0, 3);
-        const boxes_data = boxes.dataSync();
-        const scores_data = scores.dataSync();
-        const classes_data = classes.dataSync();
-        // renderBoxes(canvasRef, classThreshold, boxes_data, scores_data, classes_data, [xRatio, yRatio]);
-        console.log("Aqui viene lo chiido");
-        console.log(res.slice(0, 3));
-        console.log(`boxes_data: ${boxes_data}`);
-        console.log(`scores_data: ${scores_data}`);
-        console.log(`scores_data: ${typeof scores_data}`);
-        console.log(`classes_data: ${classes_data}`);
-        console.log("xdddd");
-        tf.dispose(res);
-        for (let i = 0; i < scores_data.length; ++i) {
-            // filter based on class threshold
-            if (scores_data[i] > classThreshold) {
-                objects_detected += 1;
-            }
-        }
-
-    });
-
-    tf.engine().endScope();
-    return objects_detected;
-};
 
 
 
