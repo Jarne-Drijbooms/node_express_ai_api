@@ -40,13 +40,13 @@ const detectImage = async(imgSource, model, classThreshold) => {
         const scores_data = scores.dataSync();
         const classes_data = classes.dataSync();
         // renderBoxes(canvasRef, classThreshold, boxes_data, scores_data, classes_data, [xRatio, yRatio]);
-        console.log("Aqui viene lo chiido");
-        console.log(res.slice(0, 3));
-        console.log(`boxes_data: ${boxes_data}`);
-        console.log(`scores_data: ${scores_data}`);
-        console.log(`scores_data: ${typeof scores_data}`);
-        console.log(`classes_data: ${classes_data}`);
-        console.log("xdddd");
+        // console.log("Aqui viene lo chiido");
+        // console.log(res.slice(0, 3));
+        // console.log(`boxes_data: ${boxes_data}`);
+        // console.log(`scores_data: ${scores_data}`);
+        // console.log(`scores_data: ${typeof scores_data}`);
+        // console.log(`classes_data: ${classes_data}`);
+        // console.log("xdddd");
         tf.dispose(res);
         for (let i = 0; i < scores_data.length; ++i) {
             // filter based on class threshold
@@ -56,7 +56,15 @@ const detectImage = async(imgSource, model, classThreshold) => {
         }
 
     });
+    let date_ob = new Date();
+    let day = ("0" + date_ob.getDate()).slice(-2);
+    let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+    let year = date_ob.getFullYear();
+    let hours = date_ob.getHours();
+    let minutes = date_ob.getMinutes();
+    let seconds = date_ob.getSeconds();
 
+    console.log(`\n ${year}/${month}/${day}-${hours}:${minutes}:${seconds} - Objects detected: ${objects_detected}`);
     tf.engine().endScope();
     return objects_detected;
 };
