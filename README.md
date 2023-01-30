@@ -1,4 +1,4 @@
-# API in Express using YOLOv5 exported model
+# Object Detection API in Express using YOLOv5 exported model
 This code is made using part of the code from [yolov5-tfjs](https://github.com/Hyuto/yolov5-tfjs). </br>
 Very well done [Hyuto](https://github.com/Hyuto), your code really helps.
 

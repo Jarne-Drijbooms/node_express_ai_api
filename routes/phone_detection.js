@@ -24,15 +24,15 @@ router.post('/', async(req, res, next) => {
         tf.dispose(dummyInput); // cleanup memory
 
         const imgdata = await req.body.base64image;
-        console.log(imgdata.substring(0, 10));
+        // console.log(imgdata.substring(0, 10));
 
         // to convert base64 format into random filename
         const base64img = await imgdata.replace(/^data:([A-Za-z-+/]+);base64,/, '');
-        console.log(base64img.substring(0, 10));
+        // console.log(base64img.substring(0, 10));
         // tf.engine().startScope(); // start scoping tf engine
 
         const imgBinary = await Buffer.from(base64img, 'base64')
-        console.log(imgBinary);
+            // console.log(imgBinary);
 
         // console.log(model.inputs[0].shape);
         let flowers = await detection(imgBinary, model, classThreshold);
