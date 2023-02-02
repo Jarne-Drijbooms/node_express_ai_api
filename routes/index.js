@@ -6,4 +6,6 @@ router.get('/', function(req, res, next) {
     res.render('index', { title: 'Flower detection in pictures' });
 });
 
+
+
 module.exports = router;

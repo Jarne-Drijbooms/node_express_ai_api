@@ -12,6 +12,10 @@ const algorithm = "aes-256-cbc"
 const key = crypto.randomBytes(32);
 const iv = crypto.randomBytes(16);
 
+//var sql = require("mssql");
+const { COnnection, Request, Connection } = require("tedious");
+
+const dotenv = require('dotenv');
 
 function encrypt(text){
     let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
@@ -98,7 +102,6 @@ app.use('/image', phoneDetectionRouter);
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
 //JWTtoken code
 app.get('/api', (req, res) => {
     res.json({
@@ -123,11 +126,11 @@ app.post('/api/posts', verifyToken, (req, res) => {
 app.post("/api/login", (req, res)=> {
     const user = {
         id: 1,
-        username: 'Jan',
-        email: 'Jan@hotmail.com',
+        username: 'User01',
+        email: 'user01@hotmail.com',
     }
 
-    jwt.sign({user}, 'secretkey',{expiresIn: '2days' }, (err, token)=>{
+    jwt.sign({user}, 'secretkey',{expiresIn: '30s' }, (err, token)=>{
         res.json({
             token
         });
@@ -150,39 +153,31 @@ function verifyToken(req, res, next){
 };
 
 
+const dbconfig ={
+    authentication: {
+        options: {
+            userName: "dev6",
+            password: "n7Vw24vSzsyMKL"
+        },
+        type: "default"
+    },
+    server: "dev6h3.database.windows.net",
+    options: {
+        database: "dev6h3",
+        encrypt: true
+    }
+};
+
+const connection = new Connection(dbconfig);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+connection.on("connect", err => {
+    if (err) {
+      console.error(err.message);
+    } else {
+      queryDatabase();
+    }
+  });
 
 
 
